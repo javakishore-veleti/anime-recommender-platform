@@ -33,3 +33,8 @@ select_components() {
     fi
   done
 }
+
+# group_of <ComponentName> -> "core" | "observability"
+group_of() {
+  components_list | awk -F: -v n="$1" '$1==n {print $3; exit}'
+}

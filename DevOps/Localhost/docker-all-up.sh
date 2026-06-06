@@ -50,4 +50,16 @@ for entry in $(select_components "$GROUP"); do
   docker compose -p "$proj" ${ENV_ARG[@]+"${ENV_ARG[@]}"} -f "$compose" up -d
 done
 
+# Document the opt-in observability components (defined but intentionally NOT
+# started here — they're heavy on a memory/disk-constrained laptop).
+if [ "$GROUP" = "core" ]; then
+  echo
+  echo "-- observability stack is DEFINED but NOT started (opt-in; heavy on RAM/disk):"
+  for entry in $(select_components observability); do
+    name="${entry%%:*}"; port="${entry##*:}"
+    echo "     $name (:$port)"
+  done
+  echo "   start it explicitly with: npm run localhost:containers:observability:start-all"
+fi
+
 echo "==> done. Status: bash $DEVOPS_DIR/docker-all-status.sh"

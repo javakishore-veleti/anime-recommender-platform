@@ -22,17 +22,19 @@ docker ps --filter "name=anime-" \
 
 echo
 echo "=== per-component (group: $GROUP) ==="
+echo "    (core = started by 'containers:start-all'; observability = defined, opt-in/not started)"
 for entry in $(select_components "$GROUP"); do
   name="${entry%%:*}"
   port="${entry##*:}"
   compose="$DEVOPS_DIR/$name/docker-compose.yaml"
   [ -f "$compose" ] || continue
+  grp="$(group_of "$name")"
   proj="anime-$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]')"
   if docker ps --format '{{.Ports}}' | grep -qE "(^|[^0-9.]):$port->"; then
     note="port $port in use (ours or reused)"
   else
     note="not running"
   fi
-  printf -- "--- %-14s [%s] ---\n" "$name" "$note"
+  printf -- "--- %-14s [%-13s] [%s] ---\n" "$name" "$grp" "$note"
   docker compose -p "$proj" ${ENV_ARG[@]+"${ENV_ARG[@]}"} -f "$compose" ps || true
 done
