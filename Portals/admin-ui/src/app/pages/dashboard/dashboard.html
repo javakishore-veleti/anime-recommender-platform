@@ -25,6 +25,50 @@
   </div>
 </section>
 
+<section class="accordion ingest-help" aria-label="About ingestion">
+  <div class="accordion__item" [class.is-open]="openNote() === 0">
+    <button
+      type="button"
+      class="accordion__header"
+      [attr.aria-expanded]="openNote() === 0"
+      (click)="toggleNote(0)"
+    >
+      <span class="accordion__q">Need fresh data? — what does “Run ingestion” do?</span>
+      <span class="accordion__chevron" aria-hidden="true">⌄</span>
+    </button>
+    @if (openNote() === 0) {
+      <div class="accordion__body animate-in">
+        <p><strong>Purpose.</strong> “Run ingestion” (re)loads the anime dataset into the
+          platform. It’s how the catalog and the recommendation index get populated or refreshed.</p>
+
+        <p><strong>What happens when you click it.</strong></p>
+        <ol>
+          <li>The Admin UI calls <code>POST /ingest</code> on the ingestion service, which creates
+            a job (status <em>pending</em>) and pushes it onto the Redis queue.</li>
+          <li>The background <strong>worker</strong> picks up the job (<em>running</em>), reads the
+            source CSV, and writes each title into the <strong>Postgres</strong> catalog.</li>
+          <li>It then embeds every title and indexes it into the <strong>vector store</strong>
+            (powering search), and marks the job <em>completed</em> — typically a few seconds for
+            the bundled ~269-title dataset.</li>
+        </ol>
+
+        <p><strong>Where to look afterwards.</strong></p>
+        <ul>
+          <li><a routerLink="/ingestion">Ingestion</a> — live job status (pending → running →
+            completed) and the number of rows processed.</li>
+          <li><a routerLink="/catalog">Catalog</a> — browse the titles that were loaded.</li>
+          <li>This <strong>Dashboard</strong> — hit <em>Refresh</em>; “Catalog size” reflects the
+            new total and services should read online.</li>
+          <li><strong>Customer portal</strong> (<code>http://localhost:5200</code>) — recommendations
+            now run against the freshly indexed data.</li>
+        </ul>
+
+        <a routerLink="/ingestion" class="btn ingest-help__cta">Go to ingestion →</a>
+      </div>
+    }
+  </div>
+</section>
+
 <section class="health">
   <h2>Service health</h2>
   <div class="health-grid">

@@ -17,6 +17,12 @@ export class Dashboard implements OnInit {
   protected readonly health = signal<ServiceHealth[]>([]);
   protected readonly catalogTotal = signal<number | null>(null);
 
+  /** "Need fresh data?" help accordion — open by default. -1 = closed. */
+  protected readonly openNote = signal<number>(0);
+  protected toggleNote(i: number): void {
+    this.openNote.set(this.openNote() === i ? -1 : i);
+  }
+
   ngOnInit(): void {
     this.refresh();
   }

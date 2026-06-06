@@ -104,3 +104,35 @@ a { color: var(--c-primary); text-decoration: none; }
 }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 .animate-in { animation: fadeInUp .4s ease both; }
+
+/* ---- accordion (shared by Dashboard + Catalog) ---- */
+.accordion {
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--c-surface);
+  box-shadow: var(--shadow-sm);
+}
+.accordion__item + .accordion__item { border-top: 1px solid var(--c-border); }
+.accordion__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .95rem 1.2rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  color: var(--c-text);
+  text-align: left;
+  transition: background .15s ease, color .15s ease;
+}
+.accordion__header:hover { background: var(--c-canvas); color: var(--c-primary-700); }
+.accordion__item.is-open .accordion__header { color: var(--c-primary-700); background: var(--c-canvas-2); }
+.accordion__q::before { content: 'ℹ '; color: var(--c-accent-600); }
+.accordion__chevron { transition: transform .2s ease; color: var(--c-muted); font-size: 1.2rem; line-height: 1; }
+.accordion__item.is-open .accordion__chevron { transform: rotate(180deg); color: var(--c-primary); }
+.accordion__body { padding: 0 1.2rem 1.1rem; color: var(--c-text-soft); line-height: 1.65; }
