@@ -21,6 +21,37 @@ export class Catalog implements OnInit {
   protected readonly page = computed(() => Math.floor(this.offset() / this.limit) + 1);
   protected readonly pageCount = computed(() => Math.max(1, Math.ceil(this.total() / this.limit)));
 
+  /** Collapsible help notes shown above the table. -1 = all closed. */
+  protected readonly openNote = signal<number>(-1);
+  protected readonly notes = [
+    {
+      q: 'What is anime?',
+      a: `Anime is the style of animation that comes from Japan — essentially Japanese ` +
+         `cartoons (the word is how Japanese pronounces "animation"). Unlike the Western ` +
+         `assumption that cartoons are just for kids, anime spans every genre — action, ` +
+         `romance, horror, sci-fi, comedy, slice-of-life, sports, deep psychological drama — ` +
+         `for children, teens, and adults. It appears as TV series, films, and shorts, and is ` +
+         `often based on manga (Japanese comics) or light novels.`,
+    },
+    {
+      q: 'About this catalog',
+      a: `Each row is one anime title loaded into Postgres by the ingestion pipeline from a ` +
+         `MyAnimeList dataset. Columns: # (MyAnimeList id), Name, Score (community rating out ` +
+         `of 10), and Genres. Run or refresh the data from the Ingestion tab; the same titles ` +
+         `are also embedded into the vector store that powers recommendations.`,
+    },
+    {
+      q: 'How recommendations work',
+      a: `When a user describes what they want to watch, the recommender service embeds the ` +
+         `query, runs a semantic search over these titles' synopses in the vector store, then ` +
+         `asks a Groq-hosted LLM to pick three matches and explain each one.`,
+    },
+  ];
+
+  protected toggleNote(i: number): void {
+    this.openNote.set(this.openNote() === i ? -1 : i);
+  }
+
   ngOnInit(): void {
     this.load();
   }

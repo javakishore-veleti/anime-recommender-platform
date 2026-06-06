@@ -8,6 +8,25 @@
   </button>
 </header>
 
+<section class="accordion" aria-label="Notes">
+  @for (note of notes; track note.q; let i = $index) {
+    <div class="accordion__item" [class.is-open]="openNote() === i">
+      <button
+        type="button"
+        class="accordion__header"
+        [attr.aria-expanded]="openNote() === i"
+        (click)="toggleNote(i)"
+      >
+        <span class="accordion__q">{{ note.q }}</span>
+        <span class="accordion__chevron" aria-hidden="true">⌄</span>
+      </button>
+      @if (openNote() === i) {
+        <div class="accordion__body animate-in">{{ note.a }}</div>
+      }
+    </div>
+  }
+</section>
+
 @if (error()) {
   <div class="notice notice--error">{{ error() }}</div>
 }
