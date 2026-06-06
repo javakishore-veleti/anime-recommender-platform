@@ -37,7 +37,7 @@ def _repo_root() -> Path:
     return Path.cwd()
 
 
-def _json_formatter(service_name: str) -> "JsonFormatter":
+def _json_formatter(service_name: str) -> JsonFormatter:
     return JsonFormatter(
         "%(asctime)s %(levelname)s %(name)s %(message)s",
         rename_fields={"asctime": "timestamp", "levelname": "level"},

@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
-
 from anime_shared.schemas import (
     IndexRequest,
     IndexResponse,
     SearchRequest,
     SearchResponse,
 )
+from fastapi import APIRouter
 
 from vectorstore_service import store
 

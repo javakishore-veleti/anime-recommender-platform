@@ -26,3 +26,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "C4"]
+
+[tool.ruff.lint.per-file-ignores]
+# The prompt is natural-language text; keep its wording intact (don't wrap lines).
+"**/prompt.py" = ["E501"]

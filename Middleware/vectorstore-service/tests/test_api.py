@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from anime_shared.schemas import SearchHit
 from fastapi.testclient import TestClient
 
-from anime_shared.schemas import SearchHit
 from vectorstore_service import store
 from vectorstore_service.main import app
 

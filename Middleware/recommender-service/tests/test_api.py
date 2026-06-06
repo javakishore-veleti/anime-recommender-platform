@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from anime_shared.schemas import RecommendationResponse, SearchHit
 from fastapi.testclient import TestClient
 
-from anime_shared.schemas import RecommendationResponse, SearchHit
 from recommender_service import recommender
 from recommender_service.main import app
 

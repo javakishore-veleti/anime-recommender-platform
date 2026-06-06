@@ -1,0 +1,74 @@
+name: CI
+
+# Manual trigger only (run from the Actions tab → "Run workflow").
+on:
+  workflow_dispatch:
+    inputs:
+      run_vectorstore_tests:
+        description: "Also run vectorstore-service tests (installs heavy ML deps: torch, chromadb)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  middleware:
+    name: Middleware — lint & tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install shared + services (editable)
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pytest
+          pip install -e Middleware/shared \
+                      -e Middleware/ingestion-service \
+                      -e Middleware/recommender-service
+
+      - name: Ruff (lint)
+        run: ruff check Middleware
+
+      - name: Pytest — shared
+        run: cd Middleware/shared && pytest -q
+
+      - name: Pytest — ingestion-service
+        run: cd Middleware/ingestion-service && pytest -q
+
+      - name: Pytest — recommender-service
+        run: cd Middleware/recommender-service && pytest -q
+
+      - name: Pytest — vectorstore-service (optional)
+        if: ${{ inputs.run_vectorstore_tests }}
+        run: |
+          pip install -e Middleware/vectorstore-service
+          cd Middleware/vectorstore-service && pytest -q
+
+  portals:
+    name: Portals — build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        portal: [customer-portal, admin-ui]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: Portals/${{ matrix.portal }}/package-lock.json
+
+      - name: Install (npm ci)
+        working-directory: Portals/${{ matrix.portal }}
+        run: npm ci
+
+      - name: Build
+        working-directory: Portals/${{ matrix.portal }}
+        run: npm run build

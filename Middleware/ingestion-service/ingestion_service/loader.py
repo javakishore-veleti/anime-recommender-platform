@@ -12,7 +12,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import pandas as pd
-
 from anime_shared.config import get_settings
 from anime_shared.exceptions import ConfigurationError
 

@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-
 from anime_shared.app_factory import create_app
 from anime_shared.db import create_all
 from anime_shared.logging import get_logger
+from fastapi import FastAPI
 
 from ingestion_service.routers import router
 

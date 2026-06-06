@@ -27,7 +27,7 @@ class Base(DeclarativeBase):
     """Declarative base for all ORM models."""
 
 
-class JobStatus(str, enum.Enum):
+class JobStatus(enum.StrEnum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -77,7 +77,7 @@ class User(Base):
     display_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    saved_recommendations: Mapped[list["SavedRecommendation"]] = relationship(
+    saved_recommendations: Mapped[list[SavedRecommendation]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
 

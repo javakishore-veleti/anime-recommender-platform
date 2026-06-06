@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from anime_shared.schemas import CatalogItem, CatalogPage, IngestionJobView
 from fastapi.testclient import TestClient
 
-from anime_shared.schemas import CatalogItem, CatalogPage, IngestionJobView
 from ingestion_service import catalog, jobs, routers
 from ingestion_service.main import app
 

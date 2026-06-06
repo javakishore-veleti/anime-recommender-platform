@@ -6,7 +6,6 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-
 # ---- vectorstore-service ----------------------------------------------------
 
 class IndexDocument(BaseModel):

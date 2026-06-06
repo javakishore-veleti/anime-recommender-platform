@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from sqlalchemy import func, select
-
 from anime_shared.db import session_scope
 from anime_shared.models import AnimeCatalog
 from anime_shared.schemas import CatalogItem, CatalogPage
+from sqlalchemy import func, select
 
 
 def get_catalog_page(limit: int = 50, offset: int = 0) -> CatalogPage:

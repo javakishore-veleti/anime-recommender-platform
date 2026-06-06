@@ -11,12 +11,11 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
-
 from anime_shared.config import get_settings
 from anime_shared.logging import get_logger
 from anime_shared.schemas import IndexDocument, SearchHit
+from langchain_chroma import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
 
 log = get_logger("vectorstore-service.store")
 COLLECTION_NAME = "anime"

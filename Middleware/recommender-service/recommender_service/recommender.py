@@ -12,14 +12,13 @@ import hashlib
 from functools import lru_cache
 
 import httpx
-from langchain_core.output_parsers import StrOutputParser
-from langchain_groq import ChatGroq
-
 from anime_shared.config import get_settings
 from anime_shared.exceptions import ConfigurationError, DownstreamServiceError
 from anime_shared.logging import get_logger
 from anime_shared.redis_client import cache_get, cache_set
 from anime_shared.schemas import RecommendationResponse, SearchHit
+from langchain_core.output_parsers import StrOutputParser
+from langchain_groq import ChatGroq
 
 from recommender_service.prompt import get_anime_prompt
 

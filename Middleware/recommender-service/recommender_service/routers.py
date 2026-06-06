@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
-
 from anime_shared.schemas import RecommendationRequest, RecommendationResponse
+from fastapi import APIRouter
 
 from recommender_service import recommender
 

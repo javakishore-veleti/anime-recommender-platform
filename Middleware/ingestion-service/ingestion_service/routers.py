@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Query
-
 from anime_shared.redis_client import enqueue_job
 from anime_shared.schemas import CatalogPage, IngestionJobView, IngestRequest
+from fastapi import APIRouter, Query
 
 from ingestion_service import catalog, jobs
 

@@ -8,14 +8,13 @@ delegates vector indexing to vectorstore-service over HTTP.
 from __future__ import annotations
 
 import httpx
-from sqlalchemy import delete
-
 from anime_shared.config import get_settings
 from anime_shared.db import session_scope
 from anime_shared.exceptions import DownstreamServiceError
 from anime_shared.logging import get_logger
 from anime_shared.models import AnimeCatalog, JobStatus
 from anime_shared.schemas import IndexDocument, IndexRequest
+from sqlalchemy import delete
 
 from ingestion_service import jobs
 from ingestion_service.loader import AnimeRow, load_rows
