@@ -74,7 +74,8 @@ dataset using retrieval + an LLM.
 - [x] `DevOps/Local` infra + observability (all 8 compose files validate)
 - [x] `Portals/customer-portal` (Angular 21, builds clean) — search + about, Indigo/Teal design system
 - [x] `Portals/admin-ui` (Angular 21, builds clean) — dashboard/ingestion/catalog, sidebar layout
-- [ ] Finalize: delete `BackUp/` once owner confirms; optional full vectorstore test run (needs ML deps)
+- [x] Finalize: `BackUp/` deleted; MIT `LICENSE` added; manual CI (GitHub Actions) green
+- [ ] Optional: full vectorstore test run (needs ML deps); live end-to-end run (Docker + GROQ_API_KEY)
 
 ## Portals design system
 
