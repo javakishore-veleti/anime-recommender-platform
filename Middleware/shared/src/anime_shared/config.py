@@ -69,6 +69,10 @@ class Settings(BaseSettings):
     recommendation_top_k: int = Field(default=5, alias="RECOMMENDATION_TOP_K")
 
     # ---- Observability ----
+    # Telemetry is sent to whatever backend is on the host port (ours, or a shared
+    # one already running) and tagged with this namespace so our data is
+    # distinguishable from other projects' in a shared Prometheus/Jaeger/Loki/ELK.
+    service_namespace: str = Field(default="anime", alias="SERVICE_NAMESPACE")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     log_format: str = Field(default="json", alias="LOG_FORMAT")  # "json" | "console"
     # Write JSON logs to <repo>/logs/<service>.jsonl so promtail can ship them to Loki.

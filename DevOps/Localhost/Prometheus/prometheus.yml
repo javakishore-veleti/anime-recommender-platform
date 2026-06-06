@@ -17,4 +17,4 @@ scrape_configs:
           - "host.docker.internal:8002"   # ingestion-service
           - "host.docker.internal:8003"   # recommender-service
         labels:
-          platform: anime-recommender
+          namespace: anime

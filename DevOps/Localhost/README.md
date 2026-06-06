@@ -42,6 +42,23 @@ The scripts take a group argument directly too: `bash docker-all-up.sh [core|obs
 (up defaults to `core`; down/status default to `all`). Components and their groups live in
 `_components.sh`.
 
+### Reusing a shared observability stack
+
+The same reuse-by-namespace idea applies to observability — so you don't run a second
+Grafana/Prometheus/Jaeger/Loki when you already have them:
+
+- **Already running?** `containers:observability:start-all` skips any component whose port is
+  taken and reuses it (Grafana 3000, Prometheus 9090, Jaeger 16686, Loki 3100, ES 9200, Kibana
+  5601). Our natively-run services send telemetry to those host ports.
+- **Namespaced so it coexists:** traces carry `service.namespace=anime` (group in Jaeger),
+  metrics carry a `namespace="anime"` label, logs carry `namespace=anime` + the `anime-logs`
+  Elasticsearch index. All driven by `SERVICE_NAMESPACE`.
+- **Two manual steps when reusing another project's backend** (we never edit their containers):
+  to scrape our metrics from a shared **Prometheus**, add the targets from
+  `Prometheus/prometheus.yml`; to see our dashboard in a shared **Grafana**, import
+  `Grafana/provisioning/dashboards/anime-overview.json`. Jaeger and Loki need nothing — our
+  services push to them directly.
+
 ### Memory & isolation
 
 - **Reuse:** `docker-all-up.sh` skips any component whose host port is already taken and reuses

@@ -26,7 +26,15 @@ def _setup_tracing(app: FastAPI, service_name: str, settings: Settings) -> None:
         from opentelemetry.sdk.trace import TracerProvider
         from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
-        provider = TracerProvider(resource=Resource.create({"service.name": service_name}))
+        provider = TracerProvider(
+            resource=Resource.create(
+                {
+                    "service.name": service_name,
+                    # Groups all our services under one namespace in a shared Jaeger.
+                    "service.namespace": settings.service_namespace,
+                }
+            )
+        )
         endpoint = settings.otel_exporter_otlp_endpoint.rstrip("/") + "/v1/traces"
         provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint)))
         trace.set_tracer_provider(provider)
