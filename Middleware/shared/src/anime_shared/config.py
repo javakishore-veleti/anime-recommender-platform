@@ -33,7 +33,7 @@ class Settings(BaseSettings):
 
     # ---- Postgres ----
     database_url: str = Field(
-        default="postgresql+psycopg://anime:anime@localhost:5432/anime",
+        default="postgresql+psycopg://anime:anime@localhost:5433/anime",
         alias="DATABASE_URL",
     )
 

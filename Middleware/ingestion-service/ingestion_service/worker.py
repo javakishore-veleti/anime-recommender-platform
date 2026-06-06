@@ -1,13 +1,14 @@
 """Background worker: consume ingestion job ids from Redis and run them.
 
 A simple, dependency-free broker (Redis list + BLPOP). Run via
-``python -m app.worker`` or ``npm run dev:ingestion-worker``.
+``python -m ingestion_service.worker`` or ``npm run localhost:services:start-all``.
 """
 
 from __future__ import annotations
 
 import signal
 import sys
+import time
 
 from anime_shared.db import create_all
 from anime_shared.logging import get_logger, setup_logging
@@ -17,6 +18,7 @@ from ingestion_service.runner import run_ingestion
 
 log = get_logger("ingestion-service.worker")
 _running = True
+_BACKOFF_SECONDS = 3
 
 
 def _stop(*_: object) -> None:
@@ -33,8 +35,16 @@ def main() -> int:
     log.info("Ingestion worker started; waiting for jobs...")
 
     while _running:
-        job_id = dequeue_job(timeout=5)
+        # Guard the dequeue: a blocking-pop timeout or a transient Redis
+        # connection blip must NOT kill the worker — log, back off, retry.
+        try:
+            job_id = dequeue_job(timeout=5)
+        except Exception as exc:  # noqa: BLE001 - resilience: keep the worker alive
+            log.warning("Redis dequeue failed (%s); retrying in %ss", exc, _BACKOFF_SECONDS)
+            time.sleep(_BACKOFF_SECONDS)
+            continue
         if job_id is None:
+            time.sleep(1)  # idle poll interval (LPOP is non-blocking)
             continue
         try:
             run_ingestion(job_id, source=None)

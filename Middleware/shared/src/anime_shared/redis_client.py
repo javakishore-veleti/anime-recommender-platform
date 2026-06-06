@@ -41,9 +41,12 @@ def enqueue_job(job_id: str, queue: str = INGESTION_QUEUE) -> None:
 
 
 def dequeue_job(queue: str = INGESTION_QUEUE, timeout: int = 5) -> str | None:
-    """Block up to ``timeout`` seconds for the next job id, or return None."""
-    result = get_redis().blpop([queue], timeout=timeout)
-    if result is None:
-        return None
-    _, job_id = result
-    return job_id
+    """Pop the next job id (non-blocking), or return None if the queue is empty.
+
+    Uses LPOP polling rather than BLPOP: some redis-py versions race the
+    blocking-pop's server-side timeout against the client socket read timeout
+    and raise ``TimeoutError`` on an idle queue. The caller polls on a short
+    sleep instead (see the worker loop). ``timeout`` is accepted for API
+    compatibility but unused.
+    """
+    return get_redis().lpop(queue)

@@ -10,7 +10,7 @@
 
 components_list() {
   cat <<EOF
-Postgres:${POSTGRES_PORT:-5432}:core
+Postgres:${POSTGRES_PORT:-5433}:core
 Redis:${REDIS_PORT:-6379}:core
 Prometheus:${PROMETHEUS_PORT:-9090}:observability
 Loki:${LOKI_PORT:-3100}:observability
