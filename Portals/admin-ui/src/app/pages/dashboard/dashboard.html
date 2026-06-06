@@ -39,17 +39,25 @@
     @if (openNote() === 0) {
       <div class="accordion__body animate-in">
         <p><strong>Purpose.</strong> “Run ingestion” (re)loads the anime dataset into the
-          platform. It’s how the catalog and the recommendation index get populated or refreshed.</p>
+          platform — it’s how the catalog and the recommendation index get populated.</p>
+
+        <p><strong>Where the data comes from.</strong> A <em>static file bundled in the repo</em>:
+          <code>data/anime_with_synopsis.csv</code> — a one-time <strong>MyAnimeList</strong>
+          export of 269 titles (<code>MAL_ID, Name, Score, Genres, sypnopsis</code>). There is
+          <strong>no live data provider and no automatic refresh</strong>: re-running ingestion
+          reads the <em>same</em> file, so it’s a reload, not a fetch of new data. To get newer
+          data you’d replace that CSV, call <code>POST /ingest</code> with a <code>source_csv</code>
+          override, or integrate a live source (e.g. the Jikan / MyAnimeList API) on a schedule.</p>
 
         <p><strong>What happens when you click it.</strong></p>
         <ol>
           <li>The Admin UI calls <code>POST /ingest</code> on the ingestion service, which creates
             a job (status <em>pending</em>) and pushes it onto the Redis queue.</li>
           <li>The background <strong>worker</strong> picks up the job (<em>running</em>), reads the
-            source CSV, and writes each title into the <strong>Postgres</strong> catalog.</li>
+            bundled CSV, and writes each title into the <strong>Postgres</strong> catalog.</li>
           <li>It then embeds every title and indexes it into the <strong>vector store</strong>
             (powering search), and marks the job <em>completed</em> — typically a few seconds for
-            the bundled ~269-title dataset.</li>
+            the ~269-title dataset.</li>
         </ol>
 
         <p><strong>Where to look afterwards.</strong></p>

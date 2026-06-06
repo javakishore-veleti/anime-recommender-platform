@@ -68,6 +68,9 @@ dataset using retrieval + an LLM.
 - Replaced deprecated LangChain `RetrievalQA` with an LCEL chain; `langchain_community.Chroma`
   → `langchain_chroma`; dropped obsolete `Chroma.persist()`.
 - Postgres + Redis introduced (the original had neither).
+- **Data source is static**: `data/anime_with_synopsis.csv` — a one-time MyAnimeList export of
+  269 titles. No live provider, no scheduled refresh; "Run ingestion" reloads the same file.
+  A real refresh would need a source integration (e.g. Jikan API) + a schedule.
 - Observability: Prometheus/Grafana (metrics), Loki+promtail & Elasticsearch/Kibana (logs),
   Jaeger (OTLP traces); services instrumented via `anime_shared`.
 
