@@ -16,6 +16,11 @@ fi
 # shellcheck source=_components.sh
 . "$DEVOPS_DIR/_components.sh"
 
+if ! docker info >/dev/null 2>&1; then
+  echo "Docker daemon is not running — no containers are up (start Docker Desktop to use infra)."
+  exit 0
+fi
+
 echo "=== anime-* containers ==="
 docker ps --filter "name=anime-" \
   --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}' || true

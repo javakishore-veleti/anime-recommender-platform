@@ -25,6 +25,11 @@ fi
 # shellcheck source=_components.sh
 . "$DEVOPS_DIR/_components.sh"
 
+if ! docker info >/dev/null 2>&1; then
+  echo "!! Docker daemon is not running — start Docker Desktop first, then re-run." >&2
+  exit 1
+fi
+
 mkdir -p "$REPO_ROOT/logs"   # promtail mounts this
 
 if ! docker network inspect "$NETWORK" >/dev/null 2>&1; then

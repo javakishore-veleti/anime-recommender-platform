@@ -22,6 +22,11 @@ fi
 # shellcheck source=_components.sh
 . "$DEVOPS_DIR/_components.sh"
 
+if ! docker info >/dev/null 2>&1; then
+  echo "==> Docker daemon is not running — all containers are already stopped. Nothing to do."
+  exit 0
+fi
+
 KEEP_VOLUMES="${KEEP_VOLUMES:-1}"   # KEEP_VOLUMES=0 to also drop named volumes
 DOWN_ARGS=()
 [ "$KEEP_VOLUMES" = "0" ] && DOWN_ARGS=(-v)
