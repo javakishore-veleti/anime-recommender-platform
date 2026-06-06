@@ -1,0 +1,28 @@
+# Postgres — anime catalog, ingestion jobs, users, saved recommendations.
+# Image tag matches what is already present locally (postgres:16).
+services:
+  postgres:
+    image: postgres:16
+    container_name: anime-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-anime}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-anime}
+      POSTGRES_DB: ${POSTGRES_DB:-anime}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - anime-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-anime}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  anime-postgres-data:
+
+networks:
+  default:
+    name: anime-net
+    external: true

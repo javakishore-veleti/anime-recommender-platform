@@ -1,0 +1,33 @@
+{
+  "name": "anime-recommender-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Multi-tier anime recommender platform: Angular Portals + FastAPI Middleware microservices + Dockerized local infra/observability.",
+  "author": "javakishore-veleti",
+  "license": "MIT",
+  "scripts": {
+    "infra:up": "bash DevOps/Local/docker-all-run.sh",
+    "infra:status": "bash DevOps/Local/docker-all-status.sh",
+    "infra:down": "bash DevOps/Local/docker-all-shutdown.sh",
+
+    "dev:services": "bash scripts/dev-services.sh",
+    "dev:vectorstore": "bash scripts/run-service.sh vectorstore_service.main:app ${VECTORSTORE_SERVICE_PORT:-8001}",
+    "dev:ingestion": "bash scripts/run-service.sh ingestion_service.main:app ${INGESTION_SERVICE_PORT:-8002}",
+    "dev:ingestion-worker": "bash scripts/run-worker.sh",
+    "dev:recommender": "bash scripts/run-service.sh recommender_service.main:app ${RECOMMENDER_SERVICE_PORT:-8003}",
+
+    "dev:portals": "bash scripts/dev-portals.sh",
+    "dev:customer-portal": "npm --prefix Portals/customer-portal start",
+    "dev:admin-ui": "npm --prefix Portals/admin-ui start",
+
+    "install:services": "bash scripts/install-services.sh",
+    "install:portals": "npm --prefix Portals/customer-portal install && npm --prefix Portals/admin-ui install",
+
+    "lint": "bash scripts/lint.sh",
+    "test": "bash scripts/test.sh",
+    "build:portals": "npm --prefix Portals/customer-portal run build && npm --prefix Portals/admin-ui run build"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

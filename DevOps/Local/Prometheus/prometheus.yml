@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # The Middleware services run natively on the host and expose /metrics.
+  # host.docker.internal lets the Prometheus container reach the host.
+  - job_name: middleware-services
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "host.docker.internal:8001"   # vectorstore-service
+          - "host.docker.internal:8002"   # ingestion-service
+          - "host.docker.internal:8003"   # recommender-service
+        labels:
+          platform: anime-recommender

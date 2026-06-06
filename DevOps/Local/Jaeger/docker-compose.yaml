@@ -1,0 +1,18 @@
+# Jaeger — distributed tracing (OTLP). Services export spans via OTLP/HTTP (:4318).
+# Image tag matches what is already present locally (jaegertracing/all-in-one:1.62.0).
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.62.0
+    container_name: anime-jaeger
+    restart: unless-stopped
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "${JAEGER_UI_PORT:-16686}:16686"   # web UI
+      - "${OTLP_GRPC_PORT:-4317}:4317"     # OTLP gRPC
+      - "${OTLP_HTTP_PORT:-4318}:4318"     # OTLP HTTP
+
+networks:
+  default:
+    name: anime-net
+    external: true

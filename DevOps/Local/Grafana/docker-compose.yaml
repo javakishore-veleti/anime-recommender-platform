@@ -1,0 +1,24 @@
+# Grafana — dashboards for Prometheus metrics + Loki logs (datasources provisioned).
+# Image tag matches what is already present locally (grafana/grafana:10.4.2).
+services:
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: anime-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - ./provisioning:/etc/grafana/provisioning:ro
+      - anime-grafana-data:/var/lib/grafana
+
+volumes:
+  anime-grafana-data:
+
+networks:
+  default:
+    name: anime-net
+    external: true

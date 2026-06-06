@@ -1,0 +1,33 @@
+# Loki + promtail — log aggregation (logs visualized in Grafana).
+# grafana/loki + grafana/promtail are pulled on first `up` (not present locally).
+services:
+  loki:
+    image: grafana/loki:3.1.0
+    container_name: anime-loki
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/loki-config.yaml"]
+    ports:
+      - "${LOKI_PORT:-3100}:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - anime-loki-data:/loki
+
+  promtail:
+    image: grafana/promtail:3.1.0
+    container_name: anime-promtail
+    restart: unless-stopped
+    command: ["-config.file=/etc/promtail/promtail-config.yaml"]
+    depends_on:
+      - loki
+    volumes:
+      - ./promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
+      # Repo-root logs/ dir, where the native services write <service>.jsonl
+      - ../../../logs:/var/log/anime:ro
+
+volumes:
+  anime-loki-data:
+
+networks:
+  default:
+    name: anime-net
+    external: true

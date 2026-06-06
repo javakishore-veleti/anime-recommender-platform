@@ -1,0 +1,24 @@
+# Redis — recommendation cache + ingestion job broker.
+# redis:7-alpine is pulled on first `up` (not present locally).
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: anime-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - anime-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  anime-redis-data:
+
+networks:
+  default:
+    name: anime-net
+    external: true

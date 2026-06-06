@@ -1,0 +1,45 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ---- Secrets / env ----
+.env
+*.env
+!.env.example
+
+# ---- Data / model artifacts ----
+chroma_db/
+*.sqlite3
+
+# ---- Node / Angular ----
+node_modules/
+Portals/*/node_modules/
+Portals/*/dist/
+Portals/*/.angular/
+*.log
+
+# ---- Logs ----
+logs/
+
+# ---- Editor / OS ----
+.DS_Store
+.idea/
+.vscode/
+
+# ---- Quarantined original (deleted once the platform is complete) ----
+BackUp/
+
+# ---- Course material (kept locally; not published — likely copyrighted) ----
+Udemy_Anime_Recommender_Transcript.txt

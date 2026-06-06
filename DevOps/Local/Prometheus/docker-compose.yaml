@@ -1,0 +1,24 @@
+# Prometheus — scrapes /metrics from the natively-run Middleware services.
+# Image tag matches what is already present locally (prom/prometheus:v2.53.0).
+services:
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: anime-prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - anime-prometheus-data:/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  anime-prometheus-data:
+
+networks:
+  default:
+    name: anime-net
+    external: true

@@ -1,0 +1,27 @@
+# Promtail tails the JSON logs written by the natively-run Middleware services
+# (repo-root logs/<service>.jsonl, mounted at /var/log/anime) and ships to Loki.
+server:
+  http_listen_port: 9080
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: anime-middleware
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: anime-middleware
+          __path__: /var/log/anime/*.jsonl
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+            service: service
+            message: message
+      - labels:
+          level:
+          service:
