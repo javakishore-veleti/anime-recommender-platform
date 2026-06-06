@@ -90,7 +90,7 @@ dataset using retrieval + an LLM.
 Shared **Indigo & Teal** palette (owner picked it; **no black/grey**): primary `#4f46e5`,
 accent `#06b6d4`, deep-indigo text `#1e1b4b`, light surfaces, gradient hero + soft shadows.
 Defined in each portal's `src/styles.scss`. Angular 21 standalone + signals + lazy routes.
-customer-portal serves on `:4200`, admin-ui on `:4300`.
+customer-portal serves on `:5200`, admin-ui on `:5201`.
 
 ## Verifying locally
 

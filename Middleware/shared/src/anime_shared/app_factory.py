@@ -19,10 +19,10 @@ from anime_shared.logging import get_logger, setup_logging
 from anime_shared.observability import setup_observability
 from anime_shared.schemas import HealthResponse
 
-# Angular dev servers (customer-portal :4200, admin-ui :4300).
+# Angular dev servers (customer-portal :5200, admin-ui :5201).
 DEFAULT_CORS_ORIGINS = [
-    "http://localhost:4200",
-    "http://localhost:4300",
+    "http://localhost:5200",
+    "http://localhost:5201",
 ]
 
 

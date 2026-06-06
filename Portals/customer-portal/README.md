@@ -9,7 +9,7 @@ recommendations. Talks to `recommender-service` (`:8003`) over HTTP.
 
 ```bash
 npm install
-npm start          # ng serve on http://localhost:4200
+npm start          # ng serve on http://localhost:5200
 npm run build      # production build → dist/
 ```
 

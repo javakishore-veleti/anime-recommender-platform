@@ -11,7 +11,7 @@ Talks to `ingestion-service` (`:8002`) primarily, and pings all services for hea
 
 ```bash
 npm install
-npm start          # ng serve on http://localhost:4300
+npm start          # ng serve on http://localhost:5201
 npm run build      # production build → dist/
 ```
 

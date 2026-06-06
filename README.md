@@ -12,13 +12,24 @@ demo into a professional, multi-tier system:
 > Application code is **not** containerized — only infrastructure runs in Docker. Services and
 > portals run natively for a fast local dev loop.
 
+## Table of contents
+
+- [Architecture](#architecture)
+- [Repository layout](#repository-layout)
+- [Quickstart](#quickstart)
+- [Run the services](#run-the-services)
+- [Run the UI (portals)](#run-the-ui-portals)
+- [Container groups & memory](#container-groups--memory)
+- [Observability endpoints](#observability-endpoints)
+- [Notes](#notes)
+
 ## Architecture
 
 ```
                  ┌──────────────────────┐      ┌──────────────────────┐
                  │  Portals/             │      │  Portals/            │
                  │  customer-portal      │      │  admin-ui            │
-                 │  (Angular :4200)      │      │  (Angular :4300)     │
+                 │  (Angular :5200)      │      │  (Angular :5201)     │
                  └──────────┬───────────┘      └──────────┬───────────┘
                             │ HTTP                         │ HTTP
                  ┌──────────▼──────────────────────────────▼──────────┐
@@ -76,15 +87,7 @@ npm run localhost:install-all              # python venv + both portals' node_mo
 npm run localhost:start-all
 npm run localhost:status-all               # containers + services + portals health
 
-# ...or drive each tier independently:
-npm run localhost:containers:start-all     # CORE infra only: Postgres + Redis (memory-friendly)
-npm run localhost:services:start-all       # FastAPI services + ingestion worker (background)
-npm run localhost:portals:start-all        # customer-portal :4200, admin-ui :4300
-
-# Heavy observability stack (Prometheus/Loki/Grafana/Elasticsearch/Kibana/Jaeger) is OPT-IN:
-npm run localhost:containers:observability:start-all
-# ...or bring up absolutely everything at once:
-npm run localhost:containers:all:start-all
+# ...or drive each tier independently (see the sections below).
 
 # 3. Use it
 #    - Admin UI  → trigger ingestion, watch job status, browse catalog
@@ -94,11 +97,62 @@ npm run localhost:containers:all:start-all
 npm run localhost:stop-all
 ```
 
-Per-group commands all support `:start-all`, `:stop-all`, `:status-all` (services/portals also
-`:restart-all`). Services + portals run as background daemons (PID files in `.localhost/run/`,
-logs in `logs/<name>.out`).
+Services + portals run as background daemons (PID files in `.localhost/run/`, logs in
+`logs/<name>.out`).
 
-### Observability endpoints (after `localhost:containers:observability:start-all`)
+## Run the services
+
+The Middleware FastAPI services (`vectorstore` :8001, `ingestion` :8002, `recommender` :8003)
+plus the ingestion worker, run natively via uvicorn.
+
+```bash
+npm run localhost:services:install-all   # first time only — creates .venv, installs services
+npm run localhost:services:start-all     # start all services + worker (background)
+npm run localhost:services:status-all    # PID + /health per service
+npm run localhost:services:stop-all      # stop them
+npm run localhost:services:restart-all   # stop + start
+```
+
+## Run the UI (portals)
+
+The Angular portals — **customer-portal on :5200**, **admin-ui on :5201**.
+
+```bash
+npm run localhost:portals:install-all    # first time only — npm install for both portals
+npm run localhost:portals:start-all      # ng serve both (background)
+npm run localhost:portals:status-all     # PID + HTTP per portal
+npm run localhost:portals:stop-all       # stop them
+npm run localhost:portals:restart-all    # stop + start
+```
+
+Open **http://localhost:5200** (customer) and **http://localhost:5201** (admin).
+
+## Container groups & memory
+
+Docker runs **infrastructure only**, split into groups so a memory-constrained laptop need not
+run everything at once:
+
+```bash
+npm run localhost:containers:start-all                  # CORE only: Postgres + Redis (default)
+npm run localhost:containers:observability:start-all    # OPT-IN heavy stack (ES/Kibana/etc.)
+npm run localhost:containers:all:start-all              # everything
+npm run localhost:containers:status-all                 # status of all anime-* infra
+npm run localhost:containers:stop-all                   # stop all anime-* infra
+```
+
+- **`core`** = Postgres + Redis (the default for `containers:start-all`).
+- **`observability`** = Prometheus, Loki, Grafana, Elasticsearch, Kibana, Jaeger (opt-in;
+  Elasticsearch + Kibana are the memory-heavy ones).
+- **Reuse, never duplicate:** start-all checks each component's published port and **reuses** an
+  already-running container instead of starting a second one (a Postgres shared with another
+  project is not duplicated).
+- **Isolated shutdown:** each component runs under a unique `anime-<component>` compose project,
+  so stop-all only removes *this* project's containers — other repos' containers (even ones we
+  reused on a shared port) are never stopped or restarted.
+
+## Observability endpoints
+
+After `npm run localhost:containers:observability:start-all`:
 
 | Tool | URL | Purpose |
 |---|---|---|
@@ -109,15 +163,6 @@ logs in `logs/<name>.out`).
 
 ## Notes
 
-- **Container groups (memory-conscious):** `core` = Postgres + Redis (default for
-  `containers:start-all`); `observability` = Prometheus/Loki/Grafana/Elasticsearch/Kibana/Jaeger
-  (opt-in). Use `containers:all:*` for everything.
-- **Reuse, never duplicate:** `start-all` checks each component's published port and **reuses**
-  an already-running container instead of starting a second one (so a shared Postgres across
-  projects isn't duplicated).
-- **Isolated shutdown:** `stop-all` runs each component under a unique `anime-<component>`
-  compose project, so it only removes *this* project's containers — containers from other repos
-  (even ones we reused on a shared port) are never stopped or restarted.
 - Docker images use the versions already present locally where available; see
   `DevOps/Localhost/*/docker-compose.yaml`.
 - Migrated from a Udemy course project; original code preserved under `BackUp/` during the
