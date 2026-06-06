@@ -1,63 +1,53 @@
 #!/usr/bin/env bash
-# Bring up all local infrastructure (Docker), one per-component compose file.
+# Bring up local infrastructure (Docker), one per-component compose file.
+# Usage: docker-all-up.sh [core|observability|all]   (default: core)
 #
-# IDEMPOTENT / REUSE: before starting each component, we check whether a
-# container is ALREADY publishing that component's host port (regardless of
-# which project/compose started it). If so, we SKIP and reuse the running
-# container instead of starting a duplicate. This applies uniformly to every
-# stack (Postgres, Redis, Prometheus, Loki, Grafana, Elasticsearch, Kibana,
-# Jaeger) — no per-stack special casing.
+# IDEMPOTENT / REUSE: before starting each component, check whether a container
+# is ALREADY publishing that component's host port (regardless of which project
+# started it). If so, SKIP and reuse it — so we never spin up duplicate DBs.
+#
+# MEMORY: defaults to the `core` group (Postgres + Redis). The heavy
+# observability stack is opt-in via the `observability` (or `all`) argument.
 set -euo pipefail
 
 DEVOPS_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$DEVOPS_DIR/../.." && pwd)"
 ENV_FILE="$REPO_ROOT/.env"
 NETWORK="anime-net"
+GROUP="${1:-core}"
 
+# Load .env so component ports honour overrides, and pass it to compose.
 ENV_ARG=()
-[ -f "$ENV_FILE" ] && ENV_ARG=(--env-file "$ENV_FILE")
+if [ -f "$ENV_FILE" ]; then
+  set -a; . "$ENV_FILE"; set +a
+  ENV_ARG=(--env-file "$ENV_FILE")
+fi
+# shellcheck source=_components.sh
+. "$DEVOPS_DIR/_components.sh"
 
-# Repo logs dir must exist before promtail mounts it.
-mkdir -p "$REPO_ROOT/logs"
+mkdir -p "$REPO_ROOT/logs"   # promtail mounts this
 
-# Shared network for cross-component DNS (e.g. Grafana -> prometheus, Kibana -> elasticsearch).
 if ! docker network inspect "$NETWORK" >/dev/null 2>&1; then
   echo "==> creating docker network: $NETWORK"
   docker network create "$NETWORK" >/dev/null
 fi
 
-# Is some running container already publishing this host port?
-port_in_use() {
-  docker ps --format '{{.Ports}}' | grep -qE "(^|[^0-9.]):$1->"
-}
+port_in_use() { docker ps --format '{{.Ports}}' | grep -qE "(^|[^0-9.]):$1->"; }
 
-# component_dir:primary_host_port  (dependency order: stores -> backends -> UIs)
-COMPONENTS="
-Postgres:${POSTGRES_PORT:-5432}
-Redis:${REDIS_PORT:-6379}
-Elasticsearch:${ELASTICSEARCH_PORT:-9200}
-Kibana:${KIBANA_PORT:-5601}
-Prometheus:${PROMETHEUS_PORT:-9090}
-Loki:${LOKI_PORT:-3100}
-Grafana:${GRAFANA_PORT:-3000}
-Jaeger:${JAEGER_UI_PORT:-16686}
-"
-
-for entry in $COMPONENTS; do
+echo "==> starting containers (group: $GROUP)"
+for entry in $(select_components "$GROUP"); do
   name="${entry%%:*}"
   port="${entry##*:}"
   compose="$DEVOPS_DIR/$name/docker-compose.yaml"
   [ -f "$compose" ] || { echo "!! missing $compose, skipping"; continue; }
 
   if port_in_use "$port"; then
-    echo "== $name: port $port already in use by a running container — REUSING (skip up)"
+    echo "== $name: port $port already in use — REUSING existing container (skip)"
     continue
   fi
-  echo "==> $name: starting (port $port)"
-  # Unique per-component project name (isolated from other repos that reuse the
-  # same folder layout, e.g. a sibling project's "postgres" compose project).
   proj="anime-$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]')"
+  echo "==> $name: starting (port $port)"
   docker compose -p "$proj" ${ENV_ARG[@]+"${ENV_ARG[@]}"} -f "$compose" up -d
 done
 
-echo "==> done. Check with: bash $DEVOPS_DIR/docker-all-status.sh"
+echo "==> done. Status: bash $DEVOPS_DIR/docker-all-status.sh"

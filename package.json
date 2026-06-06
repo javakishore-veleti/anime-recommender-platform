@@ -6,9 +6,17 @@
   "author": "javakishore-veleti",
   "license": "MIT",
   "scripts": {
-    "localhost:containers:start-all": "bash DevOps/Localhost/docker-all-up.sh",
-    "localhost:containers:stop-all": "bash DevOps/Localhost/docker-all-down.sh",
-    "localhost:containers:status-all": "bash DevOps/Localhost/docker-all-status.sh",
+    "localhost:containers:start-all": "bash DevOps/Localhost/docker-all-up.sh core",
+    "localhost:containers:stop-all": "bash DevOps/Localhost/docker-all-down.sh all",
+    "localhost:containers:status-all": "bash DevOps/Localhost/docker-all-status.sh all",
+
+    "localhost:containers:observability:start-all": "bash DevOps/Localhost/docker-all-up.sh observability",
+    "localhost:containers:observability:stop-all": "bash DevOps/Localhost/docker-all-down.sh observability",
+    "localhost:containers:observability:status-all": "bash DevOps/Localhost/docker-all-status.sh observability",
+
+    "localhost:containers:all:start-all": "bash DevOps/Localhost/docker-all-up.sh all",
+    "localhost:containers:all:stop-all": "bash DevOps/Localhost/docker-all-down.sh all",
+    "localhost:containers:all:status-all": "bash DevOps/Localhost/docker-all-status.sh all",
 
     "localhost:services:python:install-all": "bash DevOps/Localhost/Services/python-install-all.sh",
     "localhost:services:python:start-all": "bash DevOps/Localhost/Services/python-start-all.sh",

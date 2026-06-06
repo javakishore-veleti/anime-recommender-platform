@@ -77,9 +77,14 @@ npm run localhost:start-all
 npm run localhost:status-all               # containers + services + portals health
 
 # ...or drive each tier independently:
-npm run localhost:containers:start-all     # Docker infra (reuses already-running containers)
+npm run localhost:containers:start-all     # CORE infra only: Postgres + Redis (memory-friendly)
 npm run localhost:services:start-all       # FastAPI services + ingestion worker (background)
 npm run localhost:portals:start-all        # customer-portal :4200, admin-ui :4300
+
+# Heavy observability stack (Prometheus/Loki/Grafana/Elasticsearch/Kibana/Jaeger) is OPT-IN:
+npm run localhost:containers:observability:start-all
+# ...or bring up absolutely everything at once:
+npm run localhost:containers:all:start-all
 
 # 3. Use it
 #    - Admin UI  → trigger ingestion, watch job status, browse catalog
@@ -93,7 +98,7 @@ Per-group commands all support `:start-all`, `:stop-all`, `:status-all` (service
 `:restart-all`). Services + portals run as background daemons (PID files in `.localhost/run/`,
 logs in `logs/<name>.out`).
 
-### Observability endpoints (after `localhost:containers:start-all`)
+### Observability endpoints (after `localhost:containers:observability:start-all`)
 
 | Tool | URL | Purpose |
 |---|---|---|
@@ -104,9 +109,15 @@ logs in `logs/<name>.out`).
 
 ## Notes
 
-- `npm run localhost:containers:start-all` is **idempotent**: for each component it checks
-  whether a container is already running (by published port) and **reuses** it instead of
-  starting a duplicate.
+- **Container groups (memory-conscious):** `core` = Postgres + Redis (default for
+  `containers:start-all`); `observability` = Prometheus/Loki/Grafana/Elasticsearch/Kibana/Jaeger
+  (opt-in). Use `containers:all:*` for everything.
+- **Reuse, never duplicate:** `start-all` checks each component's published port and **reuses**
+  an already-running container instead of starting a second one (so a shared Postgres across
+  projects isn't duplicated).
+- **Isolated shutdown:** `stop-all` runs each component under a unique `anime-<component>`
+  compose project, so it only removes *this* project's containers — containers from other repos
+  (even ones we reused on a shared port) are never stopped or restarted.
 - Docker images use the versions already present locally where available; see
   `DevOps/Localhost/*/docker-compose.yaml`.
 - Migrated from a Udemy course project; original code preserved under `BackUp/` during the

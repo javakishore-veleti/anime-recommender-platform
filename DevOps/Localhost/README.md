@@ -20,16 +20,35 @@ it is driven by the root `package.json` `localhost:*` scripts.
 ## Commands (from repo root)
 
 ```bash
-# containers (Docker infra)
-npm run localhost:containers:start-all     # docker-all-up.sh
-npm run localhost:containers:status-all    # docker-all-status.sh
-npm run localhost:containers:stop-all      # docker-all-down.sh
+# containers — CORE only (Postgres + Redis); memory-friendly default
+npm run localhost:containers:start-all
+npm run localhost:containers:status-all
+npm run localhost:containers:stop-all      # stops ALL anime-* containers (core + observability)
 
-# everything (containers → services → portals, and the reverse on stop)
+# observability stack (Prometheus/Loki/Grafana/Elasticsearch/Kibana/Jaeger) — opt-in
+npm run localhost:containers:observability:start-all
+npm run localhost:containers:observability:stop-all
+
+# absolutely everything
+npm run localhost:containers:all:start-all
+
+# whole platform (containers → services → portals, reverse on stop)
 npm run localhost:start-all
 npm run localhost:status-all
 npm run localhost:stop-all
 ```
+
+The scripts take a group argument directly too: `bash docker-all-up.sh [core|observability|all]`
+(up defaults to `core`; down/status default to `all`). Components and their groups live in
+`_components.sh`.
+
+### Memory & isolation
+
+- **Reuse:** `docker-all-up.sh` skips any component whose host port is already taken and reuses
+  the running container — so a Postgres shared with another project is never duplicated.
+- **Isolation:** every component runs under a unique `anime-<component>` compose project, so
+  `docker-all-down.sh` only ever removes *this* project's containers. Other repos' containers
+  (e.g. `vkp-postgres`) are never stopped or restarted.
 
 ## Reuse-if-running (idempotent)
 

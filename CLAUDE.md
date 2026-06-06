@@ -49,9 +49,14 @@ dataset using retrieval + an LLM.
    `anime-recommender-platform` under `javakishore-veleti`.
 2. **Docker only for infra** (DB/Redis/observability) — never containerize the app
    services/portals for local dev.
-3. **Reuse already-running containers.** `docker-all-up.sh` checks each component's host port
-   and skips+reuses if a container is already serving it (applies to ALL stacks, not just
-   Postgres). Shutdown only removes what this project started.
+3. **Reuse already-running containers; never touch other repos'.** `docker-all-up.sh` checks
+   each component's host port and skips+reuses if a container is already serving it (all stacks,
+   not just Postgres). Every component runs under a unique `anime-<component>` compose project,
+   so `docker-all-down.sh` only removes THIS project's containers — a sibling repo's
+   `vkp-postgres` etc. is never stopped/restarted. The laptop is memory-constrained, so infra is
+   split into groups: **core** (Postgres+Redis, the default for `containers:start-all`) and
+   **observability** (Prometheus/Loki/Grafana/Elasticsearch/Kibana/Jaeger, opt-in via
+   `containers:observability:*` or `containers:all:*`). Component→group map: `_components.sh`.
 4. **Use the Docker image tags already present locally; do not invent new versions.** Present
    locally: postgres:16, prom/prometheus:v2.53.0, grafana/grafana:10.4.2,
    elasticsearch/kibana 8.15.0, jaegertracing/all-in-one:1.62.0. Pulled (not local, owner
