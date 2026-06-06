@@ -1,8 +1,10 @@
-# DevOps/Local — infrastructure (Docker)
+# DevOps/Localhost — local operations
 
-Docker here runs **infrastructure only**; application services + portals run natively.
-Each component is its own per-folder `docker-compose.yaml` on a shared external network
-(`anime-net`), orchestrated by the `docker-all-*.sh` scripts (invoked via root `package.json`).
+Docker here runs **infrastructure only**; application services + portals run natively as
+background daemons. Each infra component is its own per-folder `docker-compose.yaml` on a
+shared external network (`anime-net`), orchestrated by `docker-all-*.sh`. The `Services/`
+subfolder holds the daemon scripts for the native Python services and Angular portals. All of
+it is driven by the root `package.json` `localhost:*` scripts.
 
 | Component | Image (local tag) | Port | Role |
 |---|---|---|---|
@@ -18,17 +20,23 @@ Each component is its own per-folder `docker-compose.yaml` on a shared external 
 ## Commands (from repo root)
 
 ```bash
-npm run infra:up       # bash docker-all-run.sh
-npm run infra:status   # bash docker-all-status.sh
-npm run infra:down     # bash docker-all-shutdown.sh
+# containers (Docker infra)
+npm run localhost:containers:start-all     # docker-all-up.sh
+npm run localhost:containers:status-all    # docker-all-status.sh
+npm run localhost:containers:stop-all      # docker-all-down.sh
+
+# everything (containers → services → portals, and the reverse on stop)
+npm run localhost:start-all
+npm run localhost:status-all
+npm run localhost:stop-all
 ```
 
 ## Reuse-if-running (idempotent)
 
-`docker-all-run.sh` checks, per component, whether a container is **already publishing that
+`docker-all-up.sh` checks, per component, whether a container is **already publishing that
 component's host port** (regardless of which project started it). If so it **skips and reuses**
 the running container instead of starting a duplicate — applied uniformly to every stack.
-`docker-all-shutdown.sh` only removes containers this project created, so reused/external
+`docker-all-down.sh` only removes containers this project created, so reused/external
 containers are never touched.
 
 ## How telemetry flows

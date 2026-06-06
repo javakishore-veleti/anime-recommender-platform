@@ -30,8 +30,9 @@ Portals/*/dist/
 Portals/*/.angular/
 *.log
 
-# ---- Logs ----
+# ---- Logs / runtime ----
 logs/
+.localhost/
 
 # ---- Editor / OS ----
 .DS_Store

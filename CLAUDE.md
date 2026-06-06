@@ -33,11 +33,14 @@ dataset using retrieval + an LLM.
   - NOTE: each service's package has a **unique name** (`vectorstore_service`,
     `ingestion_service`, `recommender_service`) — NOT `app` — to avoid collisions in the
     shared venv. uvicorn target = `<pkg>.main:app`.
-- **DevOps/Local/** — Docker = **infrastructure only**, one per-component `docker-compose.yaml`
+- **DevOps/Localhost/** — Docker = **infrastructure only**, one per-component `docker-compose.yaml`
   on shared external network `anime-net`: Postgres, Redis, Prometheus, Loki+promtail, Grafana,
-  Elasticsearch, Kibana, Jaeger. `docker-all-{run,status,shutdown}.sh` orchestrate them.
-- **Root `package.json`** — single entry point: `infra:up/status/down` (Docker),
-  `install:services`, `dev:services` (uvicorn + worker), `dev:portals` (ng serve), `lint`, `test`.
+  Elasticsearch, Kibana, Jaeger. `docker-all-{up,down,status}.sh` orchestrate them; `Services/`
+  holds background daemon scripts for the native services + portals.
+- **Root `package.json`** — single entry point, VKP-style `localhost:<group>:<action>` scheme
+  (`containers` / `services` / `portals`), each with `start-all`/`stop-all`/`status-all`
+  (+`restart-all`), plus top-level `localhost:install-all` / `start-all` / `stop-all` /
+  `status-all`. Also `lint`, `test`, `build:portals`.
 
 ## Hard constraints from the owner (do not violate)
 
@@ -46,7 +49,7 @@ dataset using retrieval + an LLM.
    `anime-recommender-platform` under `javakishore-veleti`.
 2. **Docker only for infra** (DB/Redis/observability) — never containerize the app
    services/portals for local dev.
-3. **Reuse already-running containers.** `docker-all-run.sh` checks each component's host port
+3. **Reuse already-running containers.** `docker-all-up.sh` checks each component's host port
    and skips+reuses if a container is already serving it (applies to ALL stacks, not just
    Postgres). Shutdown only removes what this project started.
 4. **Use the Docker image tags already present locally; do not invent new versions.** Present
@@ -71,7 +74,7 @@ dataset using retrieval + an LLM.
 - [x] `vectorstore-service` (ML deps not installed locally yet; tests written)
 - [x] `ingestion-service` (tests: 6 passing, incl. real-CSV loader)
 - [x] `recommender-service` (tests: 5 passing)
-- [x] `DevOps/Local` infra + observability (all 8 compose files validate)
+- [x] `DevOps/Localhost` infra + observability (all 8 compose files validate)
 - [x] `Portals/customer-portal` (Angular 21, builds clean) — search + about, Indigo/Teal design system
 - [x] `Portals/admin-ui` (Angular 21, builds clean) — dashboard/ingestion/catalog, sidebar layout
 - [x] Finalize: `BackUp/` deleted; MIT `LICENSE` added; manual CI (GitHub Actions) green
@@ -88,9 +91,9 @@ customer-portal serves on `:4200`, admin-ui on `:4300`.
 
 ```bash
 cp .env.example .env            # set GROQ_API_KEY
-npm run infra:up && npm run infra:status
-npm run install:services && npm run dev:services
-npm run install:portals && npm run dev:portals     # (after portals are built)
+npm run localhost:install-all              # venv + portal deps
+npm run localhost:start-all                # containers → services → portals
+npm run localhost:status-all
 ```
 Python tests: `source .venv/bin/activate && bash scripts/test.sh`.
 `vectorstore-service` tests need ML deps (`pip install -e Middleware/vectorstore-service`).

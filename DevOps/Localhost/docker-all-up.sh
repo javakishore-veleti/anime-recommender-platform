@@ -54,7 +54,10 @@ for entry in $COMPONENTS; do
     continue
   fi
   echo "==> $name: starting (port $port)"
-  docker compose "${ENV_ARG[@]}" -f "$compose" up -d
+  # Unique per-component project name (isolated from other repos that reuse the
+  # same folder layout, e.g. a sibling project's "postgres" compose project).
+  proj="anime-$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]')"
+  docker compose -p "$proj" ${ENV_ARG[@]+"${ENV_ARG[@]}"} -f "$compose" up -d
 done
 
 echo "==> done. Check with: bash $DEVOPS_DIR/docker-all-status.sh"

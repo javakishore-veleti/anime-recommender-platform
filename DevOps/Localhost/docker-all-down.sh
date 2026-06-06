@@ -21,8 +21,11 @@ DOWN_ARGS=()
 
 for compose in "$DEVOPS_DIR"/*/docker-compose.yaml; do
   name="$(basename "$(dirname "$compose")")"
+  proj="anime-$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]')"
   echo "==> $name: down"
-  docker compose "${ENV_ARG[@]}" -f "$compose" down "${DOWN_ARGS[@]}" || true
+  # Scoped to OUR unique project name, so containers from other repos that reuse
+  # the same folder layout (and a possibly-shared port) are never removed.
+  docker compose -p "$proj" ${ENV_ARG[@]+"${ENV_ARG[@]}"} -f "$compose" down ${DOWN_ARGS[@]+"${DOWN_ARGS[@]}"} || true
 done
 
 # Remove the shared network if no longer in use (ignored if still attached).
