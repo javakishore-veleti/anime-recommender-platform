@@ -32,13 +32,21 @@ class Settings(BaseSettings):
     embedding_model_name: str = Field(default="all-MiniLM-L6-v2", alias="EMBEDDING_MODEL_NAME")
 
     # ---- Postgres ----
+    # We do NOT hardcode to any project's server: point DATABASE_URL at whatever
+    # Postgres is on the port (ours on :5433, or a shared one already running).
+    # Our tables live in a dedicated SCHEMA so we coexist with other projects'
+    # tables in the same database without collisions.
     database_url: str = Field(
-        default="postgresql+psycopg://anime:anime@localhost:5433/anime",
+        default="postgresql+psycopg://anime:anime@localhost:5433/postgres",
         alias="DATABASE_URL",
     )
+    db_schema: str = Field(default="anime", alias="DB_SCHEMA")
 
     # ---- Redis ----
+    # Shared-instance friendly: all keys are namespaced under redis_namespace so
+    # we don't clash with other projects using the same Redis.
     redis_url: str = Field(default="redis://localhost:6379/0", alias="REDIS_URL")
+    redis_namespace: str = Field(default="anime", alias="REDIS_NAMESPACE")
 
     # ---- Chroma ----
     chroma_persist_dir: str = Field(default="./.chroma_db", alias="CHROMA_PERSIST_DIR")

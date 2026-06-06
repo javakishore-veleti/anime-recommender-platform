@@ -14,7 +14,14 @@ import redis
 
 from anime_shared.config import get_settings
 
+# Logical queue name (namespaced at runtime — see _key).
 INGESTION_QUEUE = "ingestion:jobs"
+
+
+def _key(name: str) -> str:
+    """Namespace a key so we coexist with other projects in a shared Redis."""
+    ns = get_settings().redis_namespace
+    return f"{ns}:{name}" if ns else name
 
 
 @lru_cache
@@ -27,17 +34,17 @@ def get_redis() -> redis.Redis:
 # ---- cache helpers ----------------------------------------------------------
 
 def cache_get(key: str) -> str | None:
-    return get_redis().get(key)
+    return get_redis().get(_key(key))
 
 
 def cache_set(key: str, value: str, ttl_seconds: int) -> None:
-    get_redis().set(key, value, ex=ttl_seconds)
+    get_redis().set(_key(key), value, ex=ttl_seconds)
 
 
 # ---- job queue helpers ------------------------------------------------------
 
 def enqueue_job(job_id: str, queue: str = INGESTION_QUEUE) -> None:
-    get_redis().rpush(queue, job_id)
+    get_redis().rpush(_key(queue), job_id)
 
 
 def dequeue_job(queue: str = INGESTION_QUEUE, timeout: int = 5) -> str | None:
@@ -49,4 +56,4 @@ def dequeue_job(queue: str = INGESTION_QUEUE, timeout: int = 5) -> str | None:
     sleep instead (see the worker loop). ``timeout`` is accepted for API
     compatibility but unused.
     """
-    return get_redis().lpop(queue)
+    return get_redis().lpop(_key(queue))

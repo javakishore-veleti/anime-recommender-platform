@@ -29,7 +29,10 @@ def _stop(*_: object) -> None:
 
 def main() -> int:
     setup_logging("ingestion-service.worker")
-    create_all()
+    try:
+        create_all()
+    except Exception:  # noqa: BLE001 - tables may be bootstrapped by the API; keep running
+        log.warning("create_all at worker startup failed; continuing (will retry per job)")
     signal.signal(signal.SIGINT, _stop)
     signal.signal(signal.SIGTERM, _stop)
     log.info("Ingestion worker started; waiting for jobs...")

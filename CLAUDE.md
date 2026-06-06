@@ -57,11 +57,20 @@ dataset using retrieval + an LLM.
    split into groups: **core** (Postgres+Redis, the default for `containers:start-all`) and
    **observability** (Prometheus/Loki/Grafana/Elasticsearch/Kibana/Jaeger, opt-in via
    `containers:observability:*` or `containers:all:*`). Component→group map: `_components.sh`.
-4. **Use the Docker image tags already present locally; do not invent new versions.** Present
+4. **Share infra servers; isolate by namespace (memory-constrained laptop).** Do NOT run
+   duplicate servers and do NOT hardcode another project's container (e.g. vkp-postgres).
+   Reuse whatever is already on the port; otherwise start ours. Coexist via namespacing, not
+   separate servers:
+   - **Postgres** (`:5433`): connect to the `postgres` database (create it if missing), keep
+     ALL tables in a dedicated **schema** `DB_SCHEMA=anime` (`Base.metadata` schema). Bootstrap
+     in `db.create_all()` is race-safe (services start concurrently).
+   - **Redis**: every key namespaced under `REDIS_NAMESPACE=anime` (`redis_client._key`).
+   - **ELK**: logs go to the `anime-logs` index.
+5. **Use the Docker image tags already present locally; do not invent new versions.** Present
    locally: postgres:16, prom/prometheus:v2.53.0, grafana/grafana:10.4.2,
    elasticsearch/kibana 8.15.0, jaegertracing/all-in-one:1.62.0. Pulled (not local, owner
    approved): redis:7-alpine, grafana/loki:3.1.0, grafana/promtail:3.1.0.
-5. `BackUp/` holds the original code (gitignored). Delete it only when the platform is complete.
+6. `BackUp/` is already deleted (original code preserved upstream at data-guru0's repo).
 
 ## Modernization notes
 

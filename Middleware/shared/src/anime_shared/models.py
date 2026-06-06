@@ -16,15 +16,24 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     Integer,
+    MetaData,
     String,
     Text,
     func,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
+from anime_shared.config import get_settings
+
+# All tables live in a dedicated schema (default "anime") so the platform can
+# share a database with other projects without colliding. None => default schema.
+_SCHEMA = get_settings().db_schema or None
+
 
 class Base(DeclarativeBase):
-    """Declarative base for all ORM models."""
+    """Declarative base for all ORM models (namespaced to the configured schema)."""
+
+    metadata = MetaData(schema=_SCHEMA)
 
 
 class JobStatus(enum.StrEnum):
