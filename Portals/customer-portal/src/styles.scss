@@ -1,0 +1,126 @@
+/* ============================================================================
+   Anime Platform — shared design system (Indigo & Teal)
+   Light surfaces, colorful primaries, gradients + soft shadows. No black/grey.
+   ============================================================================ */
+
+:root {
+  /* palette */
+  --c-primary: #4f46e5;          /* indigo */
+  --c-primary-600: #4338ca;
+  --c-primary-700: #3730a3;
+  --c-accent: #06b6d4;           /* teal/cyan */
+  --c-accent-600: #0891b2;
+  --c-success: #10b981;
+  --c-warn: #f59e0b;
+  --c-error: #ef4444;
+
+  /* surfaces & text (no pure black / grey) */
+  --c-surface: #ffffff;
+  --c-canvas: #f5f7ff;           /* soft indigo tint */
+  --c-canvas-2: #eef2ff;
+  --c-text: #1e1b4b;             /* deep indigo */
+  --c-text-soft: #4c4a7a;
+  --c-muted: #7b79a8;
+  --c-border: #e3e6f5;
+
+  /* gradients */
+  --grad-primary: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+  --grad-hero: linear-gradient(135deg, #4f46e5 0%, #7c3aed 45%, #06b6d4 100%);
+  --grad-soft: linear-gradient(135deg, #eef2ff 0%, #e0f7fa 100%);
+
+  /* elevation */
+  --shadow-sm: 0 1px 2px rgba(79, 70, 229, .06), 0 1px 3px rgba(79, 70, 229, .10);
+  --shadow-md: 0 4px 12px rgba(79, 70, 229, .12);
+  --shadow-lg: 0 12px 32px rgba(79, 70, 229, .18);
+
+  /* shape */
+  --radius: 14px;
+  --radius-lg: 22px;
+  --font: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--c-text);
+  background:
+    radial-gradient(1200px 600px at 100% -10%, var(--c-canvas-2) 0%, transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, #e0f7fa 0%, transparent 55%),
+    var(--c-canvas);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 { letter-spacing: -.02em; line-height: 1.15; margin: 0 0 .4em; }
+a { color: var(--c-primary); text-decoration: none; }
+a:hover { color: var(--c-primary-700); }
+
+/* ---- layout ---- */
+.container { width: min(1120px, 92vw); margin: 0 auto; }
+.section { padding: 40px 0; }
+
+/* ---- buttons ---- */
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  border: 0; cursor: pointer; font: inherit; font-weight: 600;
+  padding: .8rem 1.5rem; border-radius: 999px; color: #fff;
+  background: var(--grad-primary); box-shadow: var(--shadow-md);
+  transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+.btn-ghost {
+  background: var(--c-surface); color: var(--c-primary);
+  border: 1.5px solid var(--c-border); box-shadow: var(--shadow-sm);
+}
+.btn-ghost:hover { border-color: var(--c-primary); background: var(--c-canvas); }
+
+/* ---- cards ---- */
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+
+/* ---- chips / tags ---- */
+.chip {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .4rem .85rem; border-radius: 999px; font-size: .85rem; font-weight: 600;
+  color: var(--c-primary-700); background: var(--c-canvas-2);
+  border: 1px solid var(--c-border); cursor: pointer;
+  transition: all .15s ease;
+}
+.chip:hover { background: var(--c-primary); color: #fff; border-color: transparent; }
+
+/* ---- form ---- */
+.field {
+  width: 100%; font: inherit; color: var(--c-text);
+  padding: 1rem 1.25rem; border-radius: 999px;
+  border: 1.5px solid var(--c-border); background: var(--c-surface);
+  box-shadow: var(--shadow-sm); outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.field:focus { border-color: var(--c-primary); box-shadow: 0 0 0 4px rgba(79,70,229,.14); }
+
+/* ---- misc ---- */
+.badge-accent { color: var(--c-accent-600); }
+.text-muted { color: var(--c-muted); }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 3px solid rgba(255,255,255,.45); border-top-color: #fff;
+  animation: spin .7s linear infinite;
+}
+.spinner-primary { border-color: var(--c-canvas-2); border-top-color: var(--c-primary); }
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.animate-in { animation: fadeInUp .4s ease both; }

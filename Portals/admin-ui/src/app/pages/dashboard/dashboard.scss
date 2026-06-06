@@ -1,0 +1,33 @@
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.page-head h1 { font-size: 1.9rem; margin: 0 0 0.25rem; }
+.page-head p { margin: 0; }
+.spinner--p { border-color: var(--c-canvas-2); border-top-color: var(--c-primary); }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.1rem;
+  margin-bottom: 2rem;
+}
+.stat { padding: 1.4rem 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.stat__label { color: var(--c-muted); font-weight: 600; font-size: 0.9rem; }
+.stat__value { font-size: 2rem; font-weight: 800; color: var(--c-primary-700); }
+.stat--cta { background: var(--grad-soft); border: 0; }
+.stat__btn { align-self: flex-start; }
+
+.health h2 { font-size: 1.3rem; margin-bottom: 1rem; }
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.svc { padding: 1.2rem 1.3rem; }
+.svc__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+.svc__name { font-weight: 700; }
+.svc__url { font-size: 0.88rem; color: var(--c-accent-600); word-break: break-all; }

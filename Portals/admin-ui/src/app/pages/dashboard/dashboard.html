@@ -1,0 +1,48 @@
+<header class="page-head">
+  <div>
+    <h1>Dashboard</h1>
+    <p class="text-muted">Platform health and quick actions.</p>
+  </div>
+  <button class="btn-ghost btn" (click)="refresh()" [disabled]="loading()">
+    @if (loading()) { <span class="spinner spinner--p"></span> } Refresh
+  </button>
+</header>
+
+<section class="stats">
+  <div class="card stat animate-in">
+    <span class="stat__label">Services online</span>
+    <span class="stat__value">{{ upCount }} / {{ health().length || 3 }}</span>
+  </div>
+  <div class="card stat animate-in">
+    <span class="stat__label">Catalog size</span>
+    <span class="stat__value">
+      @if (catalogTotal() !== null) { {{ catalogTotal() }} } @else { — }
+    </span>
+  </div>
+  <div class="card stat stat--cta animate-in">
+    <span class="stat__label">Need fresh data?</span>
+    <a routerLink="/ingestion" class="btn stat__btn">Run ingestion →</a>
+  </div>
+</section>
+
+<section class="health">
+  <h2>Service health</h2>
+  <div class="health-grid">
+    @for (svc of health(); track svc.name) {
+      <div class="card svc animate-in">
+        <div class="svc__top">
+          <span class="svc__name">{{ svc.name }}</span>
+          <span class="pill" [class.pill--up]="svc.up" [class.pill--down]="!svc.up">
+            {{ svc.up ? '● online' : '● offline' }}
+          </span>
+        </div>
+        <a class="svc__url" [href]="svc.url + '/docs'" target="_blank" rel="noopener">
+          {{ svc.url }}
+        </a>
+      </div>
+    }
+    @if (!health().length && !loading()) {
+      <p class="text-muted">No services reachable. Start them with <code>npm run dev:services</code>.</p>
+    }
+  </div>
+</section>

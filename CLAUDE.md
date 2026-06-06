@@ -72,9 +72,16 @@ dataset using retrieval + an LLM.
 - [x] `ingestion-service` (tests: 6 passing, incl. real-CSV loader)
 - [x] `recommender-service` (tests: 5 passing)
 - [x] `DevOps/Local` infra + observability (all 8 compose files validate)
-- [ ] `Portals/customer-portal` (Angular) — TODO
-- [ ] `Portals/admin-ui` (Angular) — TODO
-- [ ] Finalize: full lint/test, delete `BackUp/`, finalize README
+- [x] `Portals/customer-portal` (Angular 21, builds clean) — search + about, Indigo/Teal design system
+- [x] `Portals/admin-ui` (Angular 21, builds clean) — dashboard/ingestion/catalog, sidebar layout
+- [ ] Finalize: delete `BackUp/` once owner confirms; optional full vectorstore test run (needs ML deps)
+
+## Portals design system
+
+Shared **Indigo & Teal** palette (owner picked it; **no black/grey**): primary `#4f46e5`,
+accent `#06b6d4`, deep-indigo text `#1e1b4b`, light surfaces, gradient hero + soft shadows.
+Defined in each portal's `src/styles.scss`. Angular 21 standalone + signals + lazy routes.
+customer-portal serves on `:4200`, admin-ui on `:4300`.
 
 ## Verifying locally
 

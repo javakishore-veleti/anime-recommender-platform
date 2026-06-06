@@ -1,0 +1,25 @@
+<div class="shell">
+  <aside class="sidebar">
+    <a routerLink="/" class="brand">
+      <span class="brand__mark">✦</span>
+      <span class="brand__name">Anime<span class="brand__accent">Admin</span></span>
+    </a>
+    <nav class="side-nav">
+      @for (item of nav; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.exact }"
+        >
+          <span class="side-nav__icon">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+    <div class="sidebar__foot text-muted">anime-recommender-platform</div>
+  </aside>
+
+  <div class="content">
+    <router-outlet />
+  </div>
+</div>

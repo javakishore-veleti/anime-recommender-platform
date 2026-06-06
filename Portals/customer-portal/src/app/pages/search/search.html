@@ -1,0 +1,89 @@
+<section class="hero">
+  <div class="container hero__inner">
+    <span class="hero__eyebrow">AI-POWERED · POWERED BY GROQ + RETRIEVAL</span>
+    <h1 class="hero__title">Find your next <span class="hero__grad">favorite anime</span></h1>
+    <p class="hero__sub">
+      Describe the vibe you're after — mood, setting, genre — and get three hand-picked
+      recommendations with a reason for each.
+    </p>
+
+    <form class="search" (ngSubmit)="submit()">
+      <input
+        class="field search__field"
+        [value]="query()"
+        (input)="query.set($any($event.target).value)"
+        placeholder="e.g. light-hearted anime with school settings"
+        autocomplete="off"
+        aria-label="Describe what you want to watch"
+      />
+      <button class="btn search__btn" type="submit" [disabled]="loading() || !query().trim()">
+        @if (loading()) {
+          <span class="spinner"></span> Searching…
+        } @else {
+          Recommend
+        }
+      </button>
+    </form>
+
+    <div class="examples">
+      <span class="examples__label">Try:</span>
+      @for (ex of examples; track ex) {
+        <button class="chip" type="button" (click)="useExample(ex)">{{ ex }}</button>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="container section results">
+  @if (error()) {
+    <div class="notice notice--error animate-in">
+      <strong>Something went wrong.</strong> {{ error() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="grid">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="card skeleton">
+          <div class="skeleton__bar skeleton__bar--title"></div>
+          <div class="skeleton__bar"></div>
+          <div class="skeleton__bar"></div>
+          <div class="skeleton__bar skeleton__bar--short"></div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!loading() && result(); as res) {
+    <div class="results__head animate-in">
+      <h2>Recommendations</h2>
+      <div class="results__meta">
+        <span class="chip results__query">“{{ res.query }}”</span>
+        @if (res.cached) { <span class="badge-cached">⚡ cached</span> }
+      </div>
+    </div>
+
+    @if (cards().length) {
+      <div class="grid">
+        @for (rec of cards(); track rec.index) {
+          <article class="card rec animate-in">
+            <div class="rec__rank">{{ rec.index }}</div>
+            <h3 class="rec__title">{{ rec.title }}</h3>
+            <p class="rec__body">{{ rec.body }}</p>
+          </article>
+        }
+      </div>
+    } @else {
+      <article class="card rec rec--raw animate-in">
+        <p class="rec__body">{{ res.recommendation }}</p>
+      </article>
+    }
+  }
+
+  @if (!loading() && !result() && !error()) {
+    <div class="empty">
+      <div class="empty__art">🎬</div>
+      <p>Your recommendations will appear here. Describe a vibe above to begin.</p>
+    </div>
+  }
+</section>

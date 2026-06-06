@@ -1,0 +1,48 @@
+<header class="page-head">
+  <div>
+    <h1>Catalog</h1>
+    <p class="text-muted">Anime titles currently loaded in Postgres ({{ total() }} total).</p>
+  </div>
+  <button class="btn-ghost btn" (click)="load()" [disabled]="loading()">
+    @if (loading()) { <span class="spinner spinner--p"></span> } Refresh
+  </button>
+</header>
+
+@if (error()) {
+  <div class="notice notice--error">{{ error() }}</div>
+}
+
+<section class="card table-wrap animate-in">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Score</th>
+        <th>Genres</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of items(); track item.id) {
+        <tr>
+          <td class="muted">{{ item.mal_id ?? item.id }}</td>
+          <td class="name">{{ item.name }}</td>
+          <td>
+            @if (item.score != null) { <span class="score">★ {{ item.score }}</span> }
+            @else { — }
+          </td>
+          <td class="genres">{{ item.genres || '—' }}</td>
+        </tr>
+      }
+      @if (!items().length && !loading()) {
+        <tr><td colspan="4" class="empty">No catalog rows. Run ingestion from the Ingestion tab.</td></tr>
+      }
+    </tbody>
+  </table>
+</section>
+
+<nav class="pager">
+  <button class="btn-ghost btn" (click)="prev()" [disabled]="offset() === 0 || loading()">← Prev</button>
+  <span class="pager__info">Page {{ page() }} of {{ pageCount() }}</span>
+  <button class="btn-ghost btn" (click)="next()" [disabled]="page() >= pageCount() || loading()">Next →</button>
+</nav>

@@ -1,0 +1,53 @@
+<header class="page-head">
+  <div>
+    <h1>Ingestion</h1>
+    <p class="text-muted">Load the anime dataset into Postgres and the vector store.</p>
+  </div>
+</header>
+
+<section class="card panel animate-in">
+  <div class="panel__row">
+    <div>
+      <h2>Run a full ingestion</h2>
+      <p class="text-muted">
+        Enqueues a job: CSV → catalog (Postgres) → embeddings (vector store). The worker
+        processes it asynchronously; status updates below in real time.
+      </p>
+    </div>
+    <button class="btn" (click)="trigger()" [disabled]="starting() || isActive">
+      @if (starting()) { <span class="spinner"></span> Starting… }
+      @else if (isActive) { <span class="spinner"></span> Running… }
+      @else { ⬇️ Start ingestion }
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="notice notice--error">{{ error() }}</div>
+  }
+</section>
+
+@if (job(); as j) {
+  <section class="card job animate-in">
+    <div class="job__head">
+      <h3>Job <code>{{ j.id }}</code></h3>
+      <span class="pill"
+        [class.pill--pending]="j.status === 'pending'"
+        [class.pill--running]="j.status === 'running'"
+        [class.pill--completed]="j.status === 'completed'"
+        [class.pill--failed]="j.status === 'failed'">
+        {{ j.status }}
+      </span>
+    </div>
+    <dl class="job__grid">
+      <div><dt>Source</dt><dd>{{ j.source }}</dd></div>
+      <div><dt>Rows processed</dt><dd>{{ j.rows_processed }}</dd></div>
+      <div><dt>Updated</dt><dd>{{ j.updated_at || '—' }}</dd></div>
+    </dl>
+    @if (j.error) {
+      <div class="notice notice--error">{{ j.error }}</div>
+    }
+    @if (j.status === 'completed') {
+      <div class="notice notice--ok">✔ Ingestion complete — {{ j.rows_processed }} titles indexed.</div>
+    }
+  </section>
+}
