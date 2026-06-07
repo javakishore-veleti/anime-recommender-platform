@@ -14,6 +14,7 @@ demo into a professional, multi-tier system:
 
 ## Table of contents
 
+- [Getting started](#getting-started)
 - [Architecture](#architecture)
 - [Repository layout](#repository-layout)
 - [Quickstart](#quickstart)
@@ -22,6 +23,40 @@ demo into a professional, multi-tier system:
 - [Container groups & memory](#container-groups--memory)
 - [Observability endpoints](#observability-endpoints)
 - [Notes](#notes)
+
+## Getting started
+
+Prerequisites: Docker Desktop, Python 3.12+, Node 20+.
+
+### First time (run once)
+
+```bash
+cp .env.example .env                  # then put your GROQ_API_KEY in .env
+npm run localhost:install-all         # Python venv + both portals' deps (one-time, slow)
+```
+
+### Every session (to start the codebase)
+
+Make sure **Docker Desktop is running**, then from the repo root:
+
+```bash
+npm run localhost:containers:start-all   # Postgres + Redis (core infra only)
+npm run localhost:services:start-all     # FastAPI services + ingestion worker
+npm run localhost:portals:start-all      # customer-portal :5200, admin-ui :5201
+```
+
+Open <http://localhost:5200> (customer) and <http://localhost:5201> (admin).
+**First run only:** open the Admin UI → click **Run ingestion** once to load the catalog.
+
+### Stop / check
+
+```bash
+npm run localhost:stop-all       # stop portals + services + containers
+npm run localhost:status-all     # what's running
+```
+
+> Observability (Grafana/Prometheus/Loki/ES/Kibana/Jaeger) is **opt-in** and not started by the
+> commands above. Start it only if you need it: `npm run localhost:containers:observability:start-all`.
 
 ## Architecture
 
