@@ -44,16 +44,24 @@ class JobStatus(enum.StrEnum):
 
 
 class AnimeCatalog(Base):
-    """One row per anime title, loaded from the source dataset by ingestion."""
+    """One row per anime title.
+
+    Populated by the ingestion service from an ORIGINAL, fully synthetic generator
+    (no third-party data) — see ingestion_service.generator. Fields support both
+    the recommender (combined_info → embeddings) and the browse/detail UI.
+    """
 
     __tablename__ = "anime_catalog"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    mal_id: Mapped[int | None] = mapped_column(Integer, index=True, nullable=True)
-    name: Mapped[str] = mapped_column(String(512), index=True)
-    score: Mapped[float | None] = mapped_column(Float, nullable=True)
-    genres: Mapped[str | None] = mapped_column(Text, nullable=True)
+    title: Mapped[str] = mapped_column(String(512), index=True)
     synopsis: Mapped[str | None] = mapped_column(Text, nullable=True)
+    genres: Mapped[str | None] = mapped_column(Text, nullable=True)
+    score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    year: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    episodes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    studio: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    status: Mapped[str | None] = mapped_column(String(32), nullable=True)
     combined_info: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -71,6 +79,27 @@ class IngestionJob(Base):
     rows_processed: Mapped[int] = mapped_column(Integer, default=0)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class IngestionBatch(Base):
+    """One concept/category batch within an ingestion job (per-batch tracking)."""
+
+    __tablename__ = "ingestion_batches"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    job_id: Mapped[str] = mapped_column(
+        ForeignKey("ingestion_jobs.id", ondelete="CASCADE"), index=True
+    )
+    concept: Mapped[str] = mapped_column(String(64), index=True)
+    batch_index: Mapped[int] = mapped_column(Integer, default=0)
+    rows: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[JobStatus] = mapped_column(
+        Enum(JobStatus, name="batch_status"), default=JobStatus.PENDING, index=True
+    )
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )

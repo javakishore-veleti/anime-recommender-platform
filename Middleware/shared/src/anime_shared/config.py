@@ -85,8 +85,16 @@ class Settings(BaseSettings):
     )
     otel_traces_enabled: bool = Field(default=False, alias="OTEL_TRACES_ENABLED")
 
-    # ---- Dataset (used by ingestion) ----
-    seed_csv_path: str = Field(default="data/anime_with_synopsis.csv", alias="SEED_CSV_PATH")
+    # ---- Dataset (ORIGINAL synthetic generator — no third-party data) ----
+    # How many synthetic anime to generate into the Postgres catalog on ingestion.
+    anime_count: int = Field(default=100_000, alias="ANIME_COUNT")
+    # How many of them to embed into the vector store for semantic /recommend.
+    # Embedding is CPU-heavy, so the index is a sample of the (much larger) catalog.
+    embed_sample_size: int = Field(default=5_000, alias="EMBED_SAMPLE_SIZE")
+    # Deterministic generation seed (same seed => same dataset).
+    anime_seed: int = Field(default=1337, alias="ANIME_SEED")
+    # COPY chunk size — rows per transaction during bulk load (keeps memory/locks small).
+    copy_chunk_size: int = Field(default=5_000, alias="COPY_CHUNK_SIZE")
 
 
 @lru_cache

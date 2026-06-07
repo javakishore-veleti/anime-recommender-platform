@@ -41,10 +41,31 @@ def test_get_job(monkeypatch):
 
 def test_catalog(monkeypatch):
     page = CatalogPage(
-        items=[CatalogItem(id=1, name="Cowboy Bebop", score=8.78, genres="Action")],
+        items=[CatalogItem(id=1, title="Crimson Blade of Dawn", score=8.78, genres="Action")],
         total=1, limit=50, offset=0,
     )
     monkeypatch.setattr(catalog, "get_catalog_page", lambda limit, offset: page)
     resp = client.get("/catalog?limit=50&offset=0")
     assert resp.status_code == 200
-    assert resp.json()["items"][0]["name"] == "Cowboy Bebop"
+    assert resp.json()["items"][0]["title"] == "Crimson Blade of Dawn"
+
+
+def test_generator_is_deterministic_and_unique():
+    from ingestion_service import generator
+
+    a = generator.generate_one(0, seed=1337)
+    b = generator.generate_one(0, seed=1337)
+    assert a.title == b.title and a.combined_info == b.combined_info
+    titles = {generator.generate_one(i, seed=1337).title for i in range(500)}
+    assert len(titles) == 500  # unique
+    assert generator.max_unique_titles() > 1_000_000
+
+
+def test_concept_ranges_cover_exactly():
+    from ingestion_service import pipeline
+
+    ranges = pipeline.concept_ranges(1000)
+    assert sum(n for _, _, n in ranges) == 1000
+    # contiguous, non-overlapping
+    starts = [s for _, s, _ in ranges]
+    assert starts == sorted(starts)

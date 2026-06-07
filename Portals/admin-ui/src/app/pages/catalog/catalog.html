@@ -36,25 +36,29 @@
     <thead>
       <tr>
         <th>#</th>
-        <th>Name</th>
+        <th>Title</th>
+        <th>Year</th>
         <th>Score</th>
+        <th>Studio</th>
         <th>Genres</th>
       </tr>
     </thead>
     <tbody>
       @for (item of items(); track item.id) {
         <tr>
-          <td class="muted">{{ item.mal_id ?? item.id }}</td>
-          <td class="name">{{ item.name }}</td>
+          <td class="muted">{{ item.id }}</td>
+          <td class="name">{{ item.title }}</td>
+          <td class="muted">{{ item.year ?? '—' }}</td>
           <td>
             @if (item.score != null) { <span class="score">★ {{ item.score }}</span> }
             @else { — }
           </td>
+          <td class="muted">{{ item.studio || '—' }}</td>
           <td class="genres">{{ item.genres || '—' }}</td>
         </tr>
       }
       @if (!items().length && !loading()) {
-        <tr><td colspan="4" class="empty">No catalog rows. Run ingestion from the Ingestion tab.</td></tr>
+        <tr><td colspan="6" class="empty">No catalog rows. Run ingestion from the Ingestion tab.</td></tr>
       }
     </tbody>
   </table>

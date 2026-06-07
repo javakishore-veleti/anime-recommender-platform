@@ -52,8 +52,15 @@ class RecommendationResponse(BaseModel):
 # ---- ingestion-service ------------------------------------------------------
 
 class IngestRequest(BaseModel):
-    source_csv: str | None = Field(
-        default=None, description="Override the seed CSV path; defaults to the configured dataset."
+    concept: str | None = Field(
+        default=None, description="Concept/category ref to ingest; null = all concepts."
+    )
+    datasets: list[str] = Field(
+        default_factory=list, max_length=25,
+        description="Optional dataset refs/options (<=25) passed through to the pipeline.",
+    )
+    anime_count: int | None = Field(
+        default=None, description="Optional override for how many anime to generate."
     )
 
 
@@ -67,13 +74,39 @@ class IngestionJobView(BaseModel):
     updated_at: datetime | None = None
 
 
+class IngestionBatchView(BaseModel):
+    """Per-concept batch progress within an ingestion job."""
+
+    concept: str
+    batch_index: int
+    rows: int
+    status: str
+
+
 class CatalogItem(BaseModel):
+    """Compact row for list/browse views."""
+
     id: int
-    mal_id: int | None = None
-    name: str
+    title: str
     score: float | None = None
     genres: str | None = None
+    year: int | None = None
+    studio: str | None = None
+    status: str | None = None
+
+
+class AnimeDetail(BaseModel):
+    """Full record for the Anime Card / detail page."""
+
+    id: int
+    title: str
     synopsis: str | None = None
+    genres: str | None = None
+    score: float | None = None
+    year: int | None = None
+    episodes: int | None = None
+    studio: str | None = None
+    status: str | None = None
 
 
 class CatalogPage(BaseModel):

@@ -10,11 +10,24 @@ export interface IngestionJob {
 
 export interface CatalogItem {
   id: number;
-  mal_id?: number | null;
-  name: string;
+  title: string;
   score?: number | null;
   genres?: string | null;
+  year?: number | null;
+  studio?: string | null;
+  status?: string | null;
+}
+
+export interface AnimeDetail {
+  id: number;
+  title: string;
   synopsis?: string | null;
+  genres?: string | null;
+  score?: number | null;
+  year?: number | null;
+  episodes?: number | null;
+  studio?: string | null;
+  status?: string | null;
 }
 
 export interface CatalogPage {
@@ -22,6 +35,13 @@ export interface CatalogPage {
   total: number;
   limit: number;
   offset: number;
+}
+
+export interface IngestionBatch {
+  concept: string;
+  batch_index: number;
+  rows: number;
+  status: string;
 }
 
 export interface ServiceHealth {
