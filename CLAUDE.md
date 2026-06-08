@@ -26,8 +26,11 @@ dataset using retrieval + an LLM.
     (Loki file + ELK), typed exceptions, SQLAlchemy 2.0 models, redis client, schemas,
     observability, `app_factory.create_app()`.
   - `vectorstore-service` (`:8001`) — HF embeddings + Chroma; `POST /index`, `POST /search`.
-  - `ingestion-service` (`:8002`) — `POST /ingest`, `GET /jobs/{id}`, `GET /catalog`; CSV →
-    Postgres catalog + Redis-queued worker (`python -m ingestion_service.worker`) → vectorstore.
+  - `ingestion-service` (`:8002`) — `POST /ingest`, `GET /jobs/{id}`, `GET /catalog`; original
+    **synthetic generator** (`generator.py`, no third-party data) → chunked `COPY` into the
+    Postgres catalog (one batch per genre/"concept") + a small embedded sample → vectorstore.
+    Redis-queued worker (`python -m ingestion_service.worker`); reusable pipeline in
+    `pipeline.py` (`truncate_catalog` / `load_concept` / `index_sample` / `run_full_ingestion`).
   - `recommender-service` (`:8003`) — `POST /recommend`; Redis cache → vectorstore `/search`
     → LCEL chain (`prompt | ChatGroq | StrOutputParser`).
   - NOTE: each service's package has a **unique name** (`vectorstore_service`,
@@ -77,9 +80,15 @@ dataset using retrieval + an LLM.
 - Replaced deprecated LangChain `RetrievalQA` with an LCEL chain; `langchain_community.Chroma`
   → `langchain_chroma`; dropped obsolete `Chroma.persist()`.
 - Postgres + Redis introduced (the original had neither).
-- **Data source is static**: `data/anime_with_synopsis.csv` — a one-time MyAnimeList export of
-  269 titles. No live provider, no scheduled refresh; "Run ingestion" reloads the same file.
-  A real refresh would need a source integration (e.g. Jikan API) + a schedule.
+- **Data source is an original synthetic generator** (`ingestion_service/generator.py`): every
+  title/synopsis/field is procedurally generated from authored word banks — NO third-party data
+  (the old `data/anime_with_synopsis.csv` MyAnimeList export was deleted). Generation is
+  deterministic (`ANIME_SEED`, default 1337) and scalable to ~1M unique titles. Tunables in
+  `.env` / shared `config.py`: `ANIME_COUNT` (catalog rows, default 100k), `EMBED_SAMPLE_SIZE`
+  (rows embedded for `/recommend`; CPU-bound, default 5k), `COPY_CHUNK_SIZE` (rows per `COPY`
+  txn, default 5k). The full catalog is streamed + `COPY`'d to Postgres in chunks (memory-safe
+  for 1M); only the sample is embedded into Chroma. Ingestion is concept-batched by genre so
+  it can later be driven by Airflow DAGs (reusable → conceptual → facade).
 - Observability: Prometheus/Grafana (metrics), Loki+promtail & Elasticsearch/Kibana (logs),
   Jaeger (OTLP traces); services instrumented via `anime_shared`.
 
@@ -95,7 +104,10 @@ dataset using retrieval + an LLM.
 - [x] `Portals/customer-portal` (Angular 21, builds clean) — search + about, Indigo/Teal design system
 - [x] `Portals/admin-ui` (Angular 21, builds clean) — dashboard/ingestion/catalog, sidebar layout
 - [x] Finalize: `BackUp/` deleted; MIT `LICENSE` added; manual CI (GitHub Actions) green
-- [ ] Optional: full vectorstore test run (needs ML deps); live end-to-end run (Docker + GROQ_API_KEY)
+- [x] Full vectorstore test run — ML deps installed (`pip install -e Middleware/vectorstore-service`),
+      `vectorstore-service` suite green (3 passed); full suite green via `scripts/test.sh`
+      (shared + vectorstore + ingestion 6 + recommender 5).
+- [ ] Optional: live end-to-end run (needs Docker daemon running + `GROQ_API_KEY` in `.env`)
 
 ## Portals design system
 
